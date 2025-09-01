@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="icon.png">
+    <title>Windows 3.11 | Desktop</title>
+    <style>
+        body {
+            background-color: #C0C0C0;
+            margin: 0;
+            overflow: hidden;
+            font-family: "MS Sans Serif", sans-serif;
+        }
+
+        /* Okno Program Managera */
+        #program-manager {
+            position: absolute;
+            top: 100px;
+            left: 100px;
+            width: 800px;
+            height: 400px;
+            background: lightgray;
+            border: 1px solid #808080;
+            box-shadow: 2px 2px black;
+        }
+
+        /* Pasek tytułu */
+        .window-header {
+            background: #000080; /* Ciemnoniebieski pasek */
+            color: white;
+            padding: 5px;
+            font-size: 14px;
+            cursor: move;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Przyciski okna */
+        .window-buttons {
+            display: flex;
+            gap: 3px;
+        }
+
+        .window-btn {
+            background: #C0C0C0;
+            border: 1px solid #808080;
+            padding: 2px 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .window-btn:hover {
+            background: #A0A0A0;
+        }
+
+        /* Ikona Program Managera po minimalizacji */
+        #program-icon {
+            position: absolute;
+            width: 50px;
+            text-align: center;
+            cursor: pointer;
+            display: none;
+        }
+
+        #program-icon img {
+            width: 32px;
+            height: 32px;
+        }
+
+        #program-icon p {
+            margin: 5px 0 0;
+            font-size: 12px;
+            color: black;
+        }
+        /* Menu */
+        .menu {
+            background: #C0C0C0;
+            padding: 3px;
+            display: flex;
+            gap: 10px;
+            font-size: 13px;
+            border-bottom: 1px solid #808080;
+        }
+
+        .menu span {
+            cursor: pointer;
+        }
+
+        .menu span:hover {
+            background: navy;
+            color: white;
+        }
+
+        /* Zawartość okna */
+        .window-content {
+            padding: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        /* Ikony kategorii */
+        .category {
+            width: 60px;
+            text-align: center;
+            cursor: pointer;
+            margin: 10px;
+            display: inline-block;
+        }
+
+        .category img {
+            width: 32px;
+            height: 32px;
+        }
+
+        .category p {
+            margin: 5px 0 0;
+            font-size: 12px;
+            color: black;
+        }
+        /* Okno dialogowe zamknięcia systemu */
+        #exit-dialog {
+            position: absolute;
+            width: 280px;
+            background: lightgray;
+            border: 1px solid #808080;
+            box-shadow: 2px 2px black;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+
+        .dialog-header {
+            background: #000080;
+            color: white;
+            padding: 5px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .dialog-header .window-btn {
+            margin-right: auto;
+        }
+
+        .dialog-content {
+            padding: 15px;
+            font-size: 14px;
+            text-align: center;
+            background: lightgray;
+        }
+
+        .dialog-buttons {
+            display: flex;
+            justify-content: center;
+            padding: 8px;
+            background: lightgray;
+            border-top: 1px solid #808080;
+        }
+
+        .dialog-btn {
+            background: #C0C0C0;
+            padding: 4px 15px;
+            cursor: pointer;
+            font-size: 12px;
+            margin: 0 5px;
+        }
+
+        .dialog-btn:hover {
+            background: #A0A0A0;
+        }
+                /* Okno błędu */
+        #error-dialog {
+            position: absolute;
+            width: 300px;
+            height: 140px;
+            background: lightgray;
+            border: 1px solid #808080;
+            box-shadow: 2px 2px black;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+
+        .error-header {
+            background: #000080;
+            color: white;
+            padding: 5px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .error-content {
+            padding: 15px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .error-icon {
+            font-size: 24px;
+            color: red;
+        }
+
+        .error-buttons {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .error-btn {
+            background: #C0C0C0;
+            border: 1px solid #808080;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .error-btn:hover {
+            background: #A0A0A0;
+        }
+        /* Pasek menu */
+        .menu {
+            background: #C0C0C0;
+            padding: 3px;
+            display: flex;
+            gap: 10px;
+            font-size: 13px;
+            border-bottom: 1px solid #808080;
+            position: relative; /* Dodajemy pozycjonowanie dla kontenera */
+        }
+        
+        /* Rozwijane menu */
+        .submenu {
+            position: absolute;
+            background: lightgray;
+            border: 1px solid black;
+            top: 100%; /* Pojawi się bezpośrednio poniżej przycisku */
+            left: 0;
+            width: 150px;
+            display: none;
+            box-shadow: 2px 2px black;
+            z-index: 100; /* Zapewnia, że menu będzie wyświetlane na wierzchu */
+        }
+        
+        .submenu div {
+            padding: 5px;
+            font-size: 12px;
+            cursor: pointer;
+            border-bottom: 1px solid gray;
+        }
+        
+        .submenu div:hover {
+            background: navy;
+            color: white;
+        }
+/* Okno dialogowe "Uruchom" */
+#run-dialog {
+    position: absolute;
+    width: 300px;
+    height: auto; /* Zmiana na auto, żeby nie było pustego miejsca */
+    background: lightgray;
+    border: 1px solid #808080;
+    box-shadow: 2px 2px black;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: none;
+    padding-bottom: 10px; /* Żeby przyciski nie dotykały dolnej krawędzi */
+}
+    /* Pasek nagłówka okna Uruchom */
+    #run-header {
+        background: #000080;
+        color: white;
+        padding: 4px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    #run-body {
+        text-align: center;
+        padding: 15px;
+    }
+
+    #run-dialog input {
+        width: 90%;
+        padding: 5px;
+        font-size: 12px;
+        margin-top: 10px;
+        border: 1px solid black;
+    }
+
+    .dialog-buttons {
+        margin-top: 10px;
+        text-align: center;
+        padding-right: 15px;
+    }
+
+    .dialog-buttons button {
+        font-size: 12px;
+        padding: 3px;
+        width: 70px;
+        margin: 3px;
+        border: 1px solid black;
+        background: #C0C0C0;
+        cursor: pointer;
+    }
+
+    .dialog-buttons button:active {
+        border: 1px inset black;
+    }
+    /* Okno dialogowe "O Program Manager" */
+#about-dialog {
+    position: absolute;
+    width: 300px;
+    height: auto;
+    background: lightgray;
+    border: 1px solid #808080;
+    box-shadow: 2px 2px black;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: none;
+    padding-bottom: 10px;
+    text-align: center;
+}
+
+/* Tekst wewnątrz */
+#about-dialog .dialog-content {
+    padding: 15px;
+    font-size: 14px;
+    text-align: center;
+}
+/* Okno "Personalizacja" */
+#personalization-dialog {
+    position: absolute;
+    width: 300px;
+    height: auto;
+    background: lightgray;
+    border: 1px solid #808080;
+    box-shadow: 2px 2px black;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: none;
+    padding-bottom: 10px;
+}
+
+/* Styl listy wyboru */
+#wallpaper-select {
+    width: 100%;
+    padding: 5px;
+    margin-top: 10px;
+}
+    </style>
+</head>
+<body>
+
+    <!-- Program Manager -->
+    <div id="program-manager">
+        <div class="window-header" id="header">
+            <button class="window-btn" onclick="showExitDialog()">-</button>
+            <span>Program Manager</span>
+            <div class="window-buttons">
+                <button class="window-btn" onclick="toggleMaximize()" id="maximize-btn">▲</button>
+                <button class="window-btn" onclick="minimizeWindow()">▼</button>
+            </div>
+        </div>
+
+        <!-- Pasek menu -->
+        <div class="menu">
+            <div class="menu-item" onmouseenter="showMenu('file-menu')" onmouseleave="hideMenu('file-menu')">
+                File
+                <div id="file-menu" class="submenu">
+                    <div>New</div>
+                    <div onclick="showRunDialog()">Open</div>
+                    <div onclick="showExitDialog()">Close</div>
+                </div>
+            </div>
+            <div class="menu-item" onmouseenter="showMenu('options-menu')" onmouseleave="hideMenu('options-menu')">
+                Options
+                <div id="options-menu" class="submenu">
+                    <div>Settings</div>
+                    <div onclick="showPersonalizationDialog()">Personalization</div>
+                </div>
+            </div>
+            <div class="menu-item" onmouseenter="showMenu('window-menu')" onmouseleave="hideMenu('window-menu')">
+                Window
+                <div id="window-menu" class="submenu">
+                    <div onclick="minimizeWindow()">Minimize</div>
+                    <div onclick="toggleMaximize()">Maximize</div>
+                </div>
+            </div>
+            <div class="menu-item" onmouseenter="showMenu('help-menu')" onmouseleave="hideMenu('help-menu')">
+                Help
+                <div id="help-menu" class="submenu">
+                    <div onclick="showAboutDialog()">About Program Manager...</div>
+                    <div>Info</div>
+                </div>
+            </div>
+        </div>
+
+       <!-- Kategorie -->
+        <div class="window-content">
+            <div class="category" onclick="showErrorDialog()">
+                <img src="Folder.jpg" alt="Główne">
+                <p>Main</p>
+            </div>
+            <div class="category" onclick="showErrorDialog()">
+                <img src="Folder.jpg" alt="Akcesoria">
+                <p>Accesories</p>
+            </div>
+            <div class="category" onclick="showErrorDialog()">
+                <img src="Folder.jpg" alt="Sieć">
+                <p>Network</p>
+            </div>
+            <div class="category" onclick="showErrorDialog()">
+                <img src="Folder.jpg" alt="Gry">
+                <p>Games</p>
+            </div>
+            <div class="category" onclick="showErrorDialog()">
+                <img src="Folder.jpg" alt="StartUp">
+                <p>StartUp</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ikona Program Managera po minimalizacji -->
+    <div id="program-icon" onclick="restoreWindow()">
+        <img src="Program_Manager_icon.png" alt="Program Manager">
+        <p>Program Manager</p>
+    </div>
+
+    <!-- Okno dialogowe zamknięcia systemu -->
+    <div id="exit-dialog">
+        <div class="dialog-header">
+            <button class="window-btn" onclick="closeExitDialog()">-</button>
+        </div>
+        <div class="dialog-content">
+            <p><img src="info.png" height="22px">This will end your Windows session</p>
+        </div>
+        <div class="dialog-buttons">
+            <button class="dialog-btn" onclick="shutdownSystem()">OK</button>
+            <button class="dialog-btn" onclick="closeExitDialog()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Dźwięk zamykania -->
+    <audio id="shutdown-sound" src="win31shutdown.mp3" preload="audio"></audio>
+
+    <!-- Okno błędu -->
+    <div id="error-dialog">
+        <div class="error-header">
+            <span>Error</span>
+        </div>
+        <div class="error-content">
+            <span class="error-icon">❌</span>
+            <p>Coming soon. . .</p>
+        </div>
+        <div class="error-buttons">
+            <button class="error-btn" onclick="closeErrorDialog()">OK</button>
+        </div>
+    </div>
+    
+    <!-- Dźwięk błędu -->
+    <audio id="error-sound" src="error.mp3"></audio>
+    
+    <!-- Okno Uruchom -->
+    <div id="run-dialog">
+        <div id="run-header">Run</div>
+        <div id="run-body">
+            <p><img src="run.png" height="20px">Type a name of program or website:</p>
+            <input type="text" id="run-input" placeholder="for examle: notepad.exe">
+            <div class="dialog-buttons">
+                <button onclick="runCommand()">OK</button>
+                <button onclick="closeRunDialog()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+<!-- Okno dialogowe "O Program Manager" -->
+<div id="about-dialog">
+    <div class="dialog-header">
+        <button class="window-btn" onclick="closeAboutDialog()">-</button>
+        <span style="text-align: center;">About Program Manager</span>
+    </div>
+    <div class="dialog-content">
+        <img src="logo.png" height="40px">
+        <p><b>Microsoft Windows</b></p>
+        <p>Version 3.11</p>
+        <p>© Microsoft Corp. 1981-1993</p>
+    </div>
+    <div class="dialog-buttons">
+        <button class="dialog-btn" onclick="closeAboutDialog()">OK</button>
+    </div>
+</div>
+    
+    <!-- Okno "Personalizacja" -->
+<div id="personalization-dialog">
+    <div class="dialog-header">
+        <button class="window-btn" onclick="closePersonalizationDialog()">-</button>
+        <span>Personalization</span>
+    </div>
+    <div class="dialog-content">
+        <p>Choose a wallpaper:</p>
+        <select id="wallpaper-select">
+            <option value="wallpaper1.jpg">Wallpaper 1</option>
+            <option value="wallpaper2.jpg">Wallpaper 2</option>
+            <option value="wallpaper3.jpg">Wallpaper 3</option>
+        </select>
+    </div>
+    <div class="dialog-buttons">
+        <button class="dialog-btn" onclick="applyWallpaper()">Apply</button>
+        <button class="dialog-btn" onclick="closePersonalizationDialog()">Cancel</button>
+    </div>
+</div>
+
+    <script>
+        let windowEl = document.getElementById("program-manager");
+        let header = document.getElementById("header");
+        let maximizeBtn = document.getElementById("maximize-btn");
+        let programIcon = document.getElementById("program-icon");
+        let exitDialog = document.getElementById("exit-dialog"); // <- Poprawione!
+        let shutdownSound = document.getElementById("shutdown-sound");
+        let errorDialog = document.getElementById("error-dialog");
+        let errorSound = document.getElementById("error-sound");
+
+        let isMaximized = false;
+        let prevWidth, prevHeight, prevLeft, prevTop;
+        let isDragging = false, offsetX, offsetY;
+
+        // Przesuwanie okna
+        header.addEventListener("mousedown", function(event) {
+            if (isMaximized) return;
+            isDragging = true;
+            offsetX = event.clientX - windowEl.offsetLeft;
+            offsetY = event.clientY - windowEl.offsetTop;
+        });
+
+        document.addEventListener("mousemove", function(event) {
+            if (isDragging) {
+                windowEl.style.left = (event.clientX - offsetX) + "px";
+                windowEl.style.top = (event.clientY - offsetY) + "px";
+            }
+        });
+
+        document.addEventListener("mouseup", function() {
+            isDragging = false;
+        });
+
+        // Minimalizacja
+        function minimizeWindow() {
+            windowEl.style.display = "none";
+            programIcon.style.display = "block";
+            programIcon.style.top = "50px";
+            programIcon.style.left = "50px";
+        }
+
+        // Maksymalizacja/przywrócenie
+        function toggleMaximize() {
+            if (!isMaximized) {
+                prevWidth = windowEl.style.width;
+                prevHeight = windowEl.style.height;
+                prevLeft = windowEl.style.left;
+                prevTop = windowEl.style.top;
+
+                windowEl.style.width = "100vw";
+                windowEl.style.height = "100vh";
+                windowEl.style.top = "0";
+                windowEl.style.left = "0";
+                maximizeBtn.textContent = "■";
+            } else {
+                windowEl.style.width = prevWidth;
+                windowEl.style.height = prevHeight;
+                windowEl.style.top = prevTop;
+                windowEl.style.left = prevLeft;
+                maximizeBtn.textContent = "▲";
+            }
+            isMaximized = !isMaximized;
+        }
+
+        // Przywracanie okna z ikony
+        function restoreWindow() {
+            windowEl.style.display = "block";
+            programIcon.style.display = "none";
+        }
+
+        // Przesuwanie ikony
+        let iconDragging = false, iconOffsetX, iconOffsetY;
+
+        programIcon.addEventListener("mousedown", function(event) {
+            iconDragging = true;
+            iconOffsetX = event.clientX - programIcon.offsetLeft;
+            iconOffsetY = event.clientY - programIcon.offsetTop;
+        });
+
+        document.addEventListener("mousemove", function(event) {
+            if (iconDragging) {
+                programIcon.style.left = (event.clientX - iconOffsetX) + "px";
+                programIcon.style.top = (event.clientY - iconOffsetY) + "px";
+            }
+        });
+
+        document.addEventListener("mouseup", function() {
+            iconDragging = false;
+        });
+        
+        // Pokazanie okna dialogowego
+        function showExitDialog() {
+            exitDialog.style.display = "block";
+        }
+
+        // Ukrycie okna dialogowego
+        function closeExitDialog() {
+            exitDialog.style.display = "none";
+        }
+
+       function shutdownSystem() {
+            // Resetujemy dźwięk do początku
+            shutdownSound.currentTime = 0;
+
+               // Odtwarzamy dźwięk i obsługujemy błędy
+                let playPromise = shutdownSound.play();
+
+
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    console.log("Dźwięk odtworzony");
+                }).catch(error => {
+                    console.error("Nie udało się odtworzyć dźwięku:", error);
+                });
+            }
+        }
+        // Zamykanie systemu (symulacja)
+        function shutdownSystem() {
+            document.body.innerHTML = "<h1 style='text-align: center; color: orange; background-color: black; margin: 250px;'>It's now safe to turn off computer</h1>";
+        }
+        // Pokazanie okna błędu
+        function showErrorDialog() {
+            errorDialog.style.display = "block";
+            errorSound.play();
+        }
+
+        // Zamknięcie okna błędu
+        function closeErrorDialog() {
+            errorDialog.style.display = "none";
+        }
+        // Pokaż menu
+            function showMenu(id) {
+            document.getElementById(id).style.display = "block";
+        }
+        // Ukryj menu
+        function hideMenu(id) {
+            document.getElementById(id).style.display = "none";
+        }
+        //Otwarcie okna uruchamiania
+        function showRunDialog() {
+            document.getElementById("run-dialog").style.display = "block";
+        }
+        //Zamkniecie okna uruchamiania
+        function closeRunDialog() {
+            document.getElementById("run-dialog").style.display = "none";
+        }
+
+            // Obsługa okna uruchamiania
+            function runCommand() {
+            let command = document.getElementById("run-input").value.toLowerCase();
+            
+            if (command === "notepad.exe") {
+                alert("Coming soon. . .");
+            } else if (command === "cmd") {
+                alert("Error. Try again later");
+            } else if (command === "google.com") {
+                window.open("https://www.google.com", "_blank");
+            } else if (command === "youtube.com") {
+                window.open("https://youtu.be/", "_blank");
+            } else {
+                alert("Coming soon. . .");
+            }
+        }
+        // Obsługa klawisza Enter w polu tekstowym
+        document.getElementById("run-input").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            runCommand();
+    }
+});
+// Pokazuje okno "O Program Manager"
+function showAboutDialog() {
+    document.getElementById("about-dialog").style.display = "block";
+}
+
+// Zamknij okno "O Program Manager"
+function closeAboutDialog() {
+    document.getElementById("about-dialog").style.display = "none";
+}
+// Pokazuje okno "Personalizacja"
+function showPersonalizationDialog() {
+    document.getElementById("personalization-dialog").style.display = "block";
+}
+
+// Ukrywa okno "Personalizacja"
+function closePersonalizationDialog() {
+    document.getElementById("personalization-dialog").style.display = "none";
+}
+
+// Zmienia tapetę systemu
+function applyWallpaper() {
+    let selectedWallpaper = document.getElementById("wallpaper-select").value;
+    document.body.style.backgroundImage = `url(${selectedWallpaper})`;
+    document.body.style.backgroundSize = "cover";
+    closePersonalizationDialog();
+}
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="msdos_shortcut.png">
+    <title>Windows 3.11 | MS-DOS 6.22</title>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: "Courier New", monospace;
+            font-size: 18px;
+            margin: 0;
+            padding: 10px;
+        }
+        #output {
+            white-space: pre-line;
+        }
+        #input-line {
+            display: flex;
+        }
+        #prompt {
+            margin-right: 5px;
+        }
+        input {
+            background: black;
+            color: white;
+            border: none;
+            font-family: inherit;
+            font-size: inherit;
+            outline: none;
+            width: 300px;
+        }
+        #win-screen {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            background: black;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        #win-screen img {
+            width: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div id="dos-screen">
+        <div id="output">Microsoft MS-DOS 6.22  
+(C)Copyright Microsoft Corp 1981-1994.  
+
+C:\></div>
+        <div id="input-line">
+            <span id="prompt">C:\></span>
+            <input type="text" id="command-input" autofocus>
+        </div>
+    </div>
+
+    <div id="win-screen">
+        <img src="Win31logo.png" alt="Windows 3.11">
+    </div>
+
+    <audio id="startup-sound" src="win31.mp3"></audio>
+
+    <script>
+        document.getElementById("command-input").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                let inputField = document.getElementById("command-input");
+                let outputDiv = document.getElementById("output");
+                let command = inputField.value.trim().toLowerCase();
+
+                outputDiv.innerHTML += "\nC:\\>" + inputField.value;
+
+                if (command === "win") {
+                    document.getElementById("dos-screen").style.display = "none";
+                    document.getElementById("win-screen").style.display = "flex";
+
+                    setTimeout(() => {
+                        document.getElementById("startup-sound").play();
+                    }, 1000); // Odtwarzamy dźwięk po 1 sekundzie
+
+                    setTimeout(() => {
+                        window.location.href = "desktop.html";
+                    }, 6000); // Po 6 sekundach przechodzimy do systemu
+                } else {
+                    outputDiv.innerHTML += "\nBad command or file name\n";
+                }
+
+                inputField.value = "";
+                outputDiv.scrollTop = outputDiv.scrollHeight;
+            }
+        });
+    </script>
+</body>
+</html>
